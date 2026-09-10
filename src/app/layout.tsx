@@ -34,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${sans.variable} ${heebo.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <I18nProvider>
             <AuthProvider>{children}</AuthProvider>
             <LanguageSwitcher />
