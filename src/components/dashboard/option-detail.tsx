@@ -93,7 +93,7 @@ export function OptionDetail({
           href={`/trip/${shareCode}`}
           className="absolute top-4 start-4 size-9 rounded-full bg-white/90 flex items-center justify-center"
         >
-          <ArrowLeft className="size-4 text-foreground rtl:rotate-180" />
+          <ArrowLeft className="size-4 text-neutral-900 rtl:rotate-180" />
         </Link>
         <div className="absolute bottom-9 start-5 text-white">
           <div className="text-3xl font-extrabold leading-tight">{option.name}</div>

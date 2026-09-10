@@ -44,7 +44,7 @@ export function DecidedView({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={image} alt={option.destination} className="absolute inset-0 size-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-black/10" />
-        <span className="absolute top-4 start-5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-foreground">
+        <span className="absolute top-4 start-5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-neutral-900">
           🎉 {t("decided.badge")}
         </span>
         <div className="absolute bottom-10 start-5 text-white">

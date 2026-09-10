@@ -70,7 +70,7 @@ function PreviewCard() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={image} alt={t("landing.previewDestination")} className="absolute inset-0 size-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-black/0" />
-        <div className="absolute top-3 start-3 rounded-lg bg-white/90 px-2.5 py-1 text-xs font-bold text-foreground">
+        <div className="absolute top-3 start-3 rounded-lg bg-white/90 px-2.5 py-1 text-xs font-bold text-neutral-900">
           {t("landing.previewTripName")}
         </div>
         <div className="absolute bottom-3 start-4 text-white">

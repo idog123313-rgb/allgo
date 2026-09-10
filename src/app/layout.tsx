@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth/context";
 import { I18nProvider } from "@/lib/i18n/context";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import "./globals.css";
 
 const sans = Plus_Jakarta_Sans({
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <I18nProvider>
             <AuthProvider>{children}</AuthProvider>
             <LanguageSwitcher />
+            <ThemeToggle />
             <Toaster position="top-center" />
           </I18nProvider>
         </ThemeProvider>

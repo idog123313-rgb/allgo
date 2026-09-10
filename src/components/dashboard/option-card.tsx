@@ -34,7 +34,7 @@ export function OptionCard({
         <img src={image} alt={option.destination} className="absolute inset-0 size-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
         {isLeading && (
-          <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-foreground">
+          <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-neutral-900">
             <Sparkles className="size-3 text-primary" /> {t("options.leadingBadge")}
           </span>
         )}

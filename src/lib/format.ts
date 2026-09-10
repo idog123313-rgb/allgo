@@ -58,13 +58,16 @@ export function initials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+// Each pair uses tokens that invert together between light/dark themes, so
+// contrast holds either way — avoid pairing a fixed white/black against a
+// brand color that itself flips shade in dark mode.
 const AVATAR_COLORS = [
-  "bg-blue text-white",
+  "bg-primary text-primary-foreground",
   "bg-lilac text-lilac-deep",
-  "bg-blush text-blush-deep",
-  "bg-ink text-white",
-  "bg-sky text-blue-deep",
-  "bg-lilac-deep text-white",
+  "bg-accent text-accent-foreground",
+  "bg-foreground text-background",
+  "bg-secondary text-secondary-foreground",
+  "bg-lilac-deep text-background",
 ];
 
 function hashSeed(seed: string): number {
