@@ -83,6 +83,24 @@ export const CATALOG: CatalogEntry[] = [
   // Western Mediterranean
   { name: "Marseille", destination: "France", iataCode: "MRS", imageEmoji: "⚓", tripTypes: ["city", "beach", "food"], baseFlightPerPerson: 700, baseHotelPerRoomPerNight: 105 },
   { name: "Nice", destination: "France", iataCode: "NCE", imageEmoji: "🌴", tripTypes: ["city", "beach", "relaxing"], baseFlightPerPerson: 780, baseHotelPerRoomPerNight: 140 },
+
+  // Turkey — close, cheap, hugely popular ex-Israel routes
+  { name: "Istanbul", destination: "Turkey", iataCode: "IST", imageEmoji: "🕌", tripTypes: ["city", "food", "party"], baseFlightPerPerson: 380, baseHotelPerRoomPerNight: 65 },
+  { name: "Antalya", destination: "Turkey", iataCode: "AYT", imageEmoji: "🏖️", tripTypes: ["beach", "relaxing", "party"], baseFlightPerPerson: 360, baseHotelPerRoomPerNight: 70 },
+
+  // Malta
+  { name: "Malta", destination: "Malta", iataCode: "MLA", imageEmoji: "🏝️", tripTypes: ["beach", "city", "party", "relaxing"], baseFlightPerPerson: 620, baseHotelPerRoomPerNight: 95 },
+
+  // Abraham Accords routes
+  { name: "Dubai", destination: "United Arab Emirates", iataCode: "DXB", imageEmoji: "🏙️", tripTypes: ["city", "party", "adventure"], baseFlightPerPerson: 820, baseHotelPerRoomPerNight: 150 },
+  { name: "Marrakech", destination: "Morocco", iataCode: "RAK", imageEmoji: "🕌", tripTypes: ["city", "adventure", "food", "nature"], baseFlightPerPerson: 690, baseHotelPerRoomPerNight: 80 },
+  { name: "Amman", destination: "Jordan", iataCode: "AMM", imageEmoji: "🏜️", tripTypes: ["adventure", "nature", "food"], baseFlightPerPerson: 480, baseHotelPerRoomPerNight: 70 },
+
+  // Western Europe
+  { name: "Paris", destination: "France", iataCode: "CDG", imageEmoji: "🗼", tripTypes: ["city", "food", "party"], baseFlightPerPerson: 820, baseHotelPerRoomPerNight: 145 },
+  { name: "Munich", destination: "Germany", iataCode: "MUC", imageEmoji: "🍻", tripTypes: ["city", "food", "party"], baseFlightPerPerson: 750, baseHotelPerRoomPerNight: 115 },
+  { name: "Zurich", destination: "Switzerland", iataCode: "ZRH", imageEmoji: "🏔️", tripTypes: ["city", "nature", "relaxing"], baseFlightPerPerson: 880, baseHotelPerRoomPerNight: 160 },
+  { name: "London", destination: "United Kingdom", iataCode: "LGW", imageEmoji: "🎡", tripTypes: ["city", "food", "party"], baseFlightPerPerson: 850, baseHotelPerRoomPerNight: 140 },
 ];
 
 /** Free-text departure location -> best-guess IATA code. MVP-simple; a real
