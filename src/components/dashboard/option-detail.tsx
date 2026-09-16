@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,7 +20,8 @@ import { formatDateRange, formatDateShort, formatILS, formatRatio } from "@/lib/
 import { getDestinationImage } from "@/lib/images";
 import { useTranslation } from "@/lib/i18n/context";
 import { optionTotal, type OptionMatch } from "@/lib/planning";
-import { castVote, decidePlan } from "@/lib/store";
+import { castVote, decidePlan, refreshOptionPrice } from "@/lib/store";
+import type { Lang } from "@/lib/i18n/dictionaries";
 import type { Participant, TripOption, VoteValue } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +56,7 @@ export function OptionDetail({
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [voting, setVoting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const total = optionTotal(option);
   const image = getDestinationImage(option.name, option.destination);
   const responded = participants.filter((p) => p.respondedAt);
@@ -69,6 +71,23 @@ export function OptionDetail({
       toast.error(t("common.toastFailed"));
     } finally {
       setVoting(false);
+    }
+  }
+
+  async function handleRefreshPrice() {
+    setRefreshing(true);
+    try {
+      const { option: updated, previousTotal } = await refreshOptionPrice(shareCode, option.id);
+      const newTotal = updated.flightEstimate + updated.hotelEstimate + updated.otherEstimate;
+      const delta = newTotal - previousTotal;
+      if (delta === 0) toast.success(t("optionDetail.priceUnchanged"));
+      else if (delta > 0) toast.success(t("optionDetail.priceIncreased", { amount: formatILS(delta, lang) }));
+      else toast.success(t("optionDetail.priceDecreased", { amount: formatILS(Math.abs(delta), lang) }));
+      onChanged();
+    } catch {
+      toast.error(t("optionDetail.priceRefreshFailed"));
+    } finally {
+      setRefreshing(false);
     }
   }
 
@@ -149,11 +168,19 @@ export function OptionDetail({
             <CostCell label={t("optionDetail.stay")} value={option.hotelEstimate} lang={lang} />
             <CostCell label={t("optionDetail.other")} value={option.otherEstimate} lang={lang} />
           </div>
-          <p className="text-[11px] text-muted-foreground text-center pt-3">
-            {option.priceSource === "manual"
-              ? t("optionDetail.priceManual")
-              : t("optionDetail.priceChecked", { date: formatDateShort(option.priceCheckedAt, lang) })}
-          </p>
+          <div className="flex items-center justify-between gap-2 pt-3">
+            <p className="text-[11px] text-muted-foreground">{describePriceFreshness(option, t, lang)}</p>
+            {option.priceType !== "manual" && (
+              <button
+                onClick={handleRefreshPrice}
+                disabled={refreshing}
+                className="flex items-center gap-1 text-[11px] font-semibold text-primary shrink-0 disabled:opacity-50"
+              >
+                <RefreshCw className={cn("size-3", refreshing && "animate-spin")} />
+                {t("optionDetail.checkLatestPrice")}
+              </button>
+            )}
+          </div>
         </div>
 
         {option.notes && <p className="text-sm text-muted-foreground">{option.notes}</p>}
@@ -232,6 +259,27 @@ export function OptionDetail({
       </Dialog>
     </div>
   );
+}
+
+function describePriceFreshness(
+  option: TripOption,
+  t: (key: string, vars?: Record<string, string | number>) => string,
+  lang: Lang
+): string {
+  if (option.priceType === "manual") return t("optionDetail.priceManual");
+
+  const minutesAgo = Math.max(0, Math.round((Date.now() - new Date(option.searchedAt).getTime()) / 60000));
+
+  if (option.priceType === "live") {
+    if (minutesAgo < 2) return t("optionDetail.priceUpdatedNow");
+    if (minutesAgo < 60) return t("optionDetail.priceCheckedMinutesAgo", { count: minutesAgo });
+    if (minutesAgo < 60 * 24) return t("optionDetail.priceCheckedHoursAgo", { count: Math.round(minutesAgo / 60) });
+    return t("optionDetail.priceCheckedDate", { date: formatDateShort(option.searchedAt, lang) });
+  }
+
+  // indicative
+  if (minutesAgo < 60 * 24) return t("optionDetail.priceIndicative");
+  return t("optionDetail.priceCheckedDate", { date: formatDateShort(option.searchedAt, lang) });
 }
 
 function InfoCard({ label, value, hint }: { label: string; value: string; hint: string }) {

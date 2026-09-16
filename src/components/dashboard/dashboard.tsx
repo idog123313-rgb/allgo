@@ -11,7 +11,9 @@ import { GroupBudget } from "./group-budget";
 import { OptionsSection } from "./options-section";
 import { PeoplePanel } from "./people-panel";
 import { DecidedView } from "./decided-view";
+import { FindTripsResults } from "./find-trips-results";
 import { BottomNav, type DashboardTab } from "./bottom-nav";
+import { searchTrips } from "@/lib/store";
 import {
   computeBestDateWindows,
   computeBlockers,
@@ -27,7 +29,7 @@ import { useTranslation } from "@/lib/i18n/context";
 import type { Lang } from "@/lib/i18n/dictionaries";
 import { formatDateRange, formatILS, formatRatio } from "@/lib/format";
 import { askBlockerMessage, inviteMessage, reminderMessage, shareText } from "@/lib/whatsapp";
-import type { PlanBundle } from "@/lib/types";
+import type { PlanBundle, TripOption } from "@/lib/types";
 
 export function Dashboard({
   bundle,
@@ -41,6 +43,8 @@ export function Dashboard({
   const { t, lang } = useTranslation();
   const router = useRouter();
   const [tab, setTab] = useState<DashboardTab>("trip");
+  const [searching, setSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<TripOption[] | null>(null);
   const { plan, participants, availabilities, preferences, options, votes } = bundle;
   const myParticipant = participants.find((p) => p.id === myParticipantId) ?? null;
   const isOrganizer = !!myParticipant?.isOrganizer;
@@ -74,6 +78,27 @@ export function Dashboard({
   const rawAction = computePrimaryAction(participants, waitingFor, options, matches, votes, blockers);
   const action = rawAction?.kind === "lockTrip" && !isOrganizer ? null : rawAction;
 
+  async function handleFindTrips() {
+    if (!myParticipantId) {
+      setTab("options");
+      return;
+    }
+    setSearching(true);
+    try {
+      const { options: found } = await searchTrips(plan.shareCode, myParticipantId);
+      if (found.length === 0) {
+        toast.error(t("findTrips.noResults"));
+      } else {
+        setSearchResults(found);
+      }
+      onChanged();
+    } catch {
+      toast.error(t("common.toastFailed"));
+    } finally {
+      setSearching(false);
+    }
+  }
+
   async function handlePrimaryAction(action: PrimaryAction) {
     switch (action.kind) {
       case "invite": {
@@ -88,7 +113,9 @@ export function Dashboard({
         if (result === "failed") toast.error(t("invite.toastShareFailed"));
         break;
       }
-      case "addOptions":
+      case "findTrips":
+        handleFindTrips();
+        break;
       case "compareCheaper":
         setTab("options");
         break;
@@ -112,6 +139,22 @@ export function Dashboard({
     }
   }
 
+  if (searchResults) {
+    return (
+      <FindTripsResults
+        planId={plan.id}
+        shareCode={plan.shareCode}
+        options={searchResults}
+        participants={participants}
+        availabilities={availabilities}
+        preferences={preferences}
+        votes={votes}
+        myParticipantId={myParticipantId}
+        onDone={() => setSearchResults(null)}
+      />
+    );
+  }
+
   return (
     <div className="flex-1 flex flex-col">
       <div className="max-w-lg mx-auto w-full px-5 flex-1 pb-24">
@@ -119,7 +162,11 @@ export function Dashboard({
 
         {tab === "trip" && (
           <div className="flex flex-col gap-4">
-            <NextStepMessage blockers={blockers} action={action} t={t} lang={lang} onAction={handlePrimaryAction} />
+            {searching ? (
+              <NextStepCard lead={t("findTrips.searchingLead")} detail={t("findTrips.searchingDetail")} />
+            ) : (
+              <NextStepMessage blockers={blockers} action={action} t={t} lang={lang} onAction={handlePrimaryAction} />
+            )}
 
             <Destinations shareCode={plan.shareCode} matches={matches} onSeeAll={() => setTab("options")} />
 
@@ -190,8 +237,8 @@ function NextStepMessage({
       case "remind":
         lead = t("nextStep.remind", { count: action.names.length });
         break;
-      case "addOptions":
-        lead = t("nextStep.addOptions");
+      case "findTrips":
+        lead = t("nextStep.findTrips");
         break;
       case "vote":
         lead = t("nextStep.vote");
@@ -250,8 +297,8 @@ function primaryActionLabel(action: PrimaryAction, t: (key: string, vars?: Recor
       return action.names.length === 1
         ? t("primaryAction.remindOne", { name: action.names[0] })
         : t("primaryAction.remindMany", { count: action.names.length });
-    case "addOptions":
-      return t("primaryAction.addOptions");
+    case "findTrips":
+      return t("primaryAction.findTrips");
     case "vote":
       return t("primaryAction.vote");
     case "askPerson":

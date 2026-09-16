@@ -400,7 +400,7 @@ export function compareTopOptions(matches: OptionWithMatch[]): CompareSummary | 
 export type PrimaryAction =
   | { kind: "invite" }
   | { kind: "remind"; names: string[] }
-  | { kind: "addOptions" }
+  | { kind: "findTrips" }
   | { kind: "vote"; optionId: string }
   | { kind: "askPerson"; name: string }
   | { kind: "seeDates" }
@@ -424,7 +424,7 @@ export function computePrimaryAction(
   const responded = participants.filter((p) => p.respondedAt);
   if (responded.length === 0) return { kind: "invite" };
   if (waitingFor.length > 0) return { kind: "remind", names: waitingFor };
-  if (options.length === 0) return { kind: "addOptions" };
+  if (options.length === 0) return { kind: "findTrips" };
 
   const sorted = [...matches].sort((a, b) => b.match.matchPercent - a.match.matchPercent);
   const leading = sorted[0];

@@ -20,7 +20,7 @@ export type FlightPreference = "cheap" | "balanced" | "convenience";
 
 export type VoteValue = "love" | "like" | "no";
 
-export type PriceSource = "manual" | "provider";
+export type PriceType = "manual" | "indicative" | "live";
 
 export interface Plan {
   id: string;
@@ -33,6 +33,7 @@ export interface Plan {
   tripLengthNights: number;
   tripLengthFlexible: boolean;
   departureLocation: string | null;
+  roomOccupancy: number; // people per hotel room, for per-person accommodation math
   organizerName: string;
   expectedParticipantNames: string[]; // optional, powers "waiting for" list
   status: "planning" | "decided";
@@ -83,8 +84,10 @@ export interface TripOption {
   externalLink: string | null;
   notes: string | null;
   tripTypes: TripType[];
-  priceSource: PriceSource;
-  priceCheckedAt: string;
+  provider: string | null; // e.g. "mock", "skyscanner" — null for manual entries
+  priceType: PriceType;
+  searchedAt: string;
+  currency: string;
   createdBy: string | null; // participant id
   createdAt: string;
 }

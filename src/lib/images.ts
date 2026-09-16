@@ -22,6 +22,30 @@ const DESTINATION_IMAGES: { match: string[]; url: string }[] = [
     match: ["cyprus", "ayia napa", "nicosia", "larnaca"],
     url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Nissi_Beach_at_Ayia_Napa%2C_Cyprus_-_panoramio_%282%29.jpg/960px-Nissi_Beach_at_Ayia_Napa%2C_Cyprus_-_panoramio_%282%29.jpg",
   },
+  {
+    match: ["barcelona", "spain"],
+    url: "https://images.unsplash.com/photo-1583422409516-2895a77efded?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    match: ["lisbon", "portugal"],
+    url: "https://images.unsplash.com/photo-1585208798174-6cedd86e019a?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    match: ["rome", "italy"],
+    url: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    match: ["prague", "czech"],
+    url: "https://images.unsplash.com/photo-1541849546-216549ae216d?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    match: ["milan", "milano"],
+    url: "https://images.unsplash.com/photo-1512149673953-4e692934310a?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    match: ["thessaloniki"],
+    url: "https://images.unsplash.com/photo-1601581987809-a874a81309e6?q=80&w=1200&auto=format&fit=crop",
+  },
 ];
 
 const FALLBACK_IMAGE = DESTINATION_IMAGES[0].url;

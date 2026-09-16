@@ -30,6 +30,8 @@ export default function NewTripPage() {
   const [tripLengthNights, setTripLengthNights] = useState(3);
   const [tripLengthFlexible, setTripLengthFlexible] = useState(false);
   const [departureLocation, setDepartureLocation] = useState("");
+  const [roomOccupancy, setRoomOccupancy] = useState(2);
+  const [customRoomOccupancy, setCustomRoomOccupancy] = useState(false);
   const [organizerName, setOrganizerName] = useState("");
   const [expectedNames, setExpectedNames] = useState<string[]>([]);
   const [nameDraft, setNameDraft] = useState("");
@@ -70,6 +72,7 @@ export default function NewTripPage() {
         tripLengthNights,
         tripLengthFlexible,
         departureLocation,
+        roomOccupancy,
         organizerName: organizerName.trim(),
         expectedParticipantNames: expectedNames,
       });
@@ -183,6 +186,50 @@ export default function NewTripPage() {
                   onChange={(e) => setDepartureLocation(e.target.value)}
                   maxLength={40}
                 />
+              </Field>
+
+              <Field label={t("create.roomSetup")} hint={t("create.roomSetupHint")}>
+                <div className="flex flex-wrap items-center gap-2">
+                  {[2, 3].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => {
+                        setRoomOccupancy(n);
+                        setCustomRoomOccupancy(false);
+                      }}
+                      className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold border transition-all active:scale-95 ${
+                        !customRoomOccupancy && roomOccupancy === n
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {t("create.perRoom", { count: n })}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setCustomRoomOccupancy(true)}
+                    className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold border transition-all active:scale-95 ${
+                      customRoomOccupancy
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {t("create.custom")}
+                  </button>
+                  {customRoomOccupancy && (
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={10}
+                      value={roomOccupancy}
+                      onChange={(e) => setRoomOccupancy(Math.max(1, Math.min(10, Number(e.target.value) || 1)))}
+                      className="w-20"
+                    />
+                  )}
+                </div>
               </Field>
 
               <Field label={t("create.yourName")}>

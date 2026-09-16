@@ -11,15 +11,15 @@
  */
 
 import { supabase } from "./supabase/client";
+import { mapAvailability, mapParticipant, mapPlan, mapPreference, mapTripOption, mapVote } from "./db-mappers";
 import type {
   Availability,
   DayStatus,
   FlightPreference,
-  Participant,
   Plan,
   PlanBundle,
   Preference,
-  PriceSource,
+  PriceType,
   TripOption,
   TripType,
   Vote,
@@ -31,104 +31,6 @@ async function getUserId(): Promise<string> {
   const userId = data.session?.user.id;
   if (!userId) throw new Error("Not signed in");
   return userId;
-}
-
-// ---------------------------------------------------------------------------
-// Row -> app-model mappers (snake_case DB columns -> camelCase TS types)
-// ---------------------------------------------------------------------------
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapPlan(row: any): Plan {
-  return {
-    id: row.id,
-    shareCode: row.share_code,
-    type: "trip",
-    name: row.name,
-    destinationIdea: row.destination_idea,
-    dateRangeStart: row.date_range_start,
-    dateRangeEnd: row.date_range_end,
-    tripLengthNights: row.trip_length_nights,
-    tripLengthFlexible: row.trip_length_flexible,
-    departureLocation: row.departure_location,
-    organizerName: row.organizer_name,
-    expectedParticipantNames: row.expected_participant_names ?? [],
-    status: row.status,
-    decidedOptionId: row.decided_option_id,
-    decidedAt: row.decided_at,
-    createdAt: row.created_at,
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapParticipant(row: any): Participant {
-  return {
-    id: row.id,
-    planId: row.plan_id,
-    name: row.name,
-    isOrganizer: row.is_organizer,
-    respondedAt: row.responded_at,
-    createdAt: row.created_at,
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapAvailability(row: any): Availability {
-  return {
-    id: row.id,
-    planId: row.plan_id,
-    participantId: row.participant_id,
-    flexible: row.flexible,
-    days: row.days ?? {},
-    updatedAt: row.updated_at,
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapPreference(row: any): Preference {
-  return {
-    id: row.id,
-    planId: row.plan_id,
-    participantId: row.participant_id,
-    budgetPerPerson: Number(row.budget_per_person),
-    tripTypes: row.trip_types ?? [],
-    flightPreference: row.flight_preference,
-    updatedAt: row.updated_at,
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapTripOption(row: any): TripOption {
-  return {
-    id: row.id,
-    planId: row.plan_id,
-    name: row.name,
-    destination: row.destination,
-    imageEmoji: row.image_emoji,
-    dateStart: row.date_start,
-    dateEnd: row.date_end,
-    flightEstimate: Number(row.flight_estimate),
-    hotelEstimate: Number(row.hotel_estimate),
-    otherEstimate: Number(row.other_estimate),
-    externalLink: row.external_link,
-    notes: row.notes,
-    tripTypes: row.trip_types ?? [],
-    priceSource: row.price_source,
-    priceCheckedAt: row.price_checked_at,
-    createdBy: row.created_by,
-    createdAt: row.created_at,
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapVote(row: any): Vote {
-  return {
-    id: row.id,
-    planId: row.plan_id,
-    optionId: row.option_id,
-    participantId: row.participant_id,
-    value: row.value,
-    updatedAt: row.updated_at,
-  };
 }
 
 function raise(error: { message: string } | null, fallback: string): void {
@@ -147,6 +49,7 @@ export interface CreatePlanInput {
   tripLengthNights: number;
   tripLengthFlexible: boolean;
   departureLocation: string;
+  roomOccupancy: number;
   organizerName: string;
   expectedParticipantNames: string[];
 }
@@ -163,6 +66,7 @@ export async function createPlan(input: CreatePlanInput): Promise<Plan> {
       trip_length_nights: input.tripLengthNights,
       trip_length_flexible: input.tripLengthFlexible,
       departure_location: input.departureLocation.trim() || null,
+      room_occupancy: input.roomOccupancy,
       organizer_name: input.organizerName.trim(),
       organizer_user_id: userId,
       expected_participant_names: input.expectedParticipantNames,
@@ -302,8 +206,10 @@ export async function submitPreference(
 export async function addOption(
   planId: string,
   createdBy: string,
-  data: Omit<TripOption, "id" | "planId" | "createdBy" | "createdAt" | "priceSource" | "priceCheckedAt"> & {
-    priceSource?: PriceSource;
+  data: Omit<TripOption, "id" | "planId" | "createdBy" | "createdAt" | "provider" | "priceType" | "searchedAt" | "currency"> & {
+    provider?: string | null;
+    priceType?: PriceType;
+    currency?: string;
   }
 ): Promise<TripOption> {
   const { data: row, error } = await supabase
@@ -321,8 +227,10 @@ export async function addOption(
       external_link: data.externalLink,
       notes: data.notes,
       trip_types: data.tripTypes,
-      price_source: data.priceSource ?? "manual",
-      price_checked_at: new Date().toISOString(),
+      provider: data.provider ?? null,
+      price_type: data.priceType ?? "manual",
+      currency: data.currency ?? "ILS",
+      searched_at: new Date().toISOString(),
       created_by: createdBy,
     })
     .select()
@@ -379,4 +287,47 @@ export async function reopenPlan(planId: string): Promise<Plan> {
     .single();
   raise(error, "Couldn't reopen planning");
   return mapPlan(data);
+}
+
+// ---------------------------------------------------------------------------
+// Automated trip search — runs server-side (API routes), never calls a
+// travel provider directly from the browser.
+// ---------------------------------------------------------------------------
+
+async function authedFetch(url: string, body: unknown) {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error("Not signed in");
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(json?.error || "Request failed");
+  return json;
+}
+
+export interface SearchTripsResult {
+  options: TripOption[];
+  optionIds: string[];
+}
+
+/** Runs the automated discovery funnel and persists the top matches as real trip options. */
+export async function searchTrips(shareCode: string, participantId: string): Promise<SearchTripsResult> {
+  const json = await authedFetch("/api/search-trips", { shareCode, participantId });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const options = (json.options ?? []).map((o: any) => mapTripOption(o));
+  return { options, optionIds: options.map((o: TripOption) => o.id) };
+}
+
+export interface RefreshPriceResult {
+  option: TripOption;
+  previousTotal: number;
+}
+
+/** Live-checks a single option's price (finalist / on-demand refresh). */
+export async function refreshOptionPrice(shareCode: string, optionId: string): Promise<RefreshPriceResult> {
+  const json = await authedFetch("/api/refresh-price", { shareCode, optionId });
+  return { option: mapTripOption(json.option), previousTotal: json.previousTotal };
 }
