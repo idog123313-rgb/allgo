@@ -2,20 +2,32 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
+import { ChevronRight, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { buttonVariants, Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { AvatarInitials } from "@/components/shared/avatar-initials";
 import { MatchBadge } from "@/components/dashboard/match-badge";
 import { getDestinationImage } from "@/lib/images";
 import { formatILS, formatDateRange } from "@/lib/format";
 import { useTranslation } from "@/lib/i18n/context";
-import { listMyPlans } from "@/lib/store";
+import { useAuth } from "@/lib/auth/context";
+import { listMyPlans, deletePlan } from "@/lib/store";
 import type { Plan } from "@/lib/types";
 
 const PREVIEW_NAMES = ["Ido", "Daniel", "Maya", "Ron", "Tom", "Dana", "Noa", "Ben"];
 
 export default function Home() {
   const { t } = useTranslation();
+  const { userId } = useAuth();
   // null = still loading; keeps the marketing preview card from flashing
   // in before we know whether this device already has real trips.
   const [myPlans, setMyPlans] = useState<Plan[] | null>(null);
@@ -33,6 +45,10 @@ export default function Home() {
       cancelled = true;
     };
   }, []);
+
+  function handleDeleted(planId: string) {
+    setMyPlans((prev) => (prev ? prev.filter((p) => p.id !== planId) : prev));
+  }
 
   return (
     <div className="flex-1 flex flex-col bg-background">
@@ -67,7 +83,11 @@ export default function Home() {
 
         <div className="px-5 pb-12">
           <div className="max-w-md mx-auto">
-            {myPlans && myPlans.length > 0 ? <MyTripsList plans={myPlans} /> : <PreviewCard />}
+            {myPlans && myPlans.length > 0 ? (
+              <MyTripsList plans={myPlans} currentUserId={userId} onDeleted={handleDeleted} />
+            ) : (
+              <PreviewCard />
+            )}
           </div>
         </div>
       </main>
@@ -127,39 +147,96 @@ function PreviewCard() {
   );
 }
 
-function MyTripsList({ plans }: { plans: Plan[] }) {
+function MyTripsList({
+  plans,
+  currentUserId,
+  onDeleted,
+}: {
+  plans: Plan[];
+  currentUserId: string;
+  onDeleted: (planId: string) => void;
+}) {
   const { t, lang } = useTranslation();
+  const [pendingDelete, setPendingDelete] = useState<Plan | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    try {
+      await deletePlan(pendingDelete.id);
+      onDeleted(pendingDelete.id);
+      toast.success(t("landing.deleteTripSuccess"));
+      setPendingDelete(null);
+    } catch {
+      toast.error(t("landing.deleteTripFailed"));
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <h2 className="text-sm font-bold text-muted-foreground px-1">{t("landing.myTripsTitle")}</h2>
       {plans.map((plan) => (
-        <Link
+        <div
           key={plan.id}
-          href={`/trip/${plan.shareCode}`}
-          className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] active:scale-[0.99] transition-transform"
+          className="flex items-center gap-1 rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
         >
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-foreground truncate">{plan.name}</span>
-              <span
-                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                  plan.status === "decided" ? "bg-emerald-100 text-emerald-800" : "bg-sky text-blue-deep"
-                }`}
-              >
-                {plan.status === "decided" ? t("landing.statusDecided") : t("landing.statusPlanning")}
-              </span>
+          <Link
+            href={`/trip/${plan.shareCode}`}
+            className="flex-1 min-w-0 flex items-center gap-3 p-4 active:scale-[0.99] transition-transform"
+          >
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-foreground truncate">{plan.name}</span>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                    plan.status === "decided" ? "bg-emerald-100 text-emerald-800" : "bg-sky text-blue-deep"
+                  }`}
+                >
+                  {plan.status === "decided" ? t("landing.statusDecided") : t("landing.statusPlanning")}
+                </span>
+              </div>
+              <div className="text-sm text-muted-foreground truncate">
+                {formatDateRange(plan.dateRangeStart, plan.dateRangeEnd, lang)}
+                {plan.destinationIdea ? ` · ${plan.destinationIdea}` : ""}
+              </div>
             </div>
-            <div className="text-sm text-muted-foreground truncate">
-              {formatDateRange(plan.dateRangeStart, plan.dateRangeEnd, lang)}
-              {plan.destinationIdea ? ` · ${plan.destinationIdea}` : ""}
-            </div>
-          </div>
-          <ChevronRight className="size-5 text-muted-foreground shrink-0 rtl:rotate-180" />
-        </Link>
+            <ChevronRight className="size-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+          </Link>
+          {plan.organizerUserId === currentUserId && (
+            <button
+              type="button"
+              aria-label={t("landing.deleteTrip")}
+              onClick={() => setPendingDelete(plan)}
+              className="shrink-0 self-stretch px-3 text-muted-foreground hover:text-destructive transition-colors"
+            >
+              <Trash2 className="size-4" />
+            </button>
+          )}
+        </div>
       ))}
       <Link href="/new" className="text-sm font-semibold text-primary text-center py-2">
         {t("landing.cta")}
       </Link>
+
+      <Dialog open={!!pendingDelete} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("landing.deleteTripTitle")}</DialogTitle>
+            <DialogDescription>{t("landing.deleteTripDescription")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" disabled={deleting} />}>
+              {t("landing.deleteTripCancel")}
+            </DialogClose>
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleting}>
+              {t("landing.deleteTripConfirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

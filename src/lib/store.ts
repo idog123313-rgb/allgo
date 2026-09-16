@@ -86,6 +86,16 @@ export async function listMyPlans(): Promise<Plan[]> {
   return (data ?? []).map(mapPlan);
 }
 
+/** Organizer-only (see plans_delete policy, 003) — cascades to every child
+ * row (participants, availabilities, options, votes, ...) via FK. A delete
+ * RLS blocks (not the organizer) deletes zero rows without an error, so we
+ * check what actually came back rather than trusting a clean response. */
+export async function deletePlan(planId: string): Promise<void> {
+  const { data, error } = await supabase.from("plans").delete().eq("id", planId).select("id");
+  raise(error, "Couldn't delete this trip");
+  if (!data || data.length === 0) throw new Error("Only the organizer can delete this trip");
+}
+
 export interface PlanOverview {
   plan: Plan;
   options: TripOption[];

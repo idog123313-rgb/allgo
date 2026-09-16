@@ -35,6 +35,7 @@ export interface Plan {
   departureLocation: string | null;
   roomOccupancy: number; // people per hotel room, for per-person accommodation math
   organizerName: string;
+  organizerUserId: string;
   expectedParticipantNames: string[]; // optional, powers "waiting for" list
   status: "planning" | "decided";
   decidedOptionId: string | null;

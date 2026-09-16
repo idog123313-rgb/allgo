@@ -19,6 +19,7 @@ export function mapPlan(row: any): Plan {
     departureLocation: row.departure_location,
     roomOccupancy: row.room_occupancy,
     organizerName: row.organizer_name,
+    organizerUserId: row.organizer_user_id,
     expectedParticipantNames: row.expected_participant_names ?? [],
     status: row.status,
     decidedOptionId: row.decided_option_id,
