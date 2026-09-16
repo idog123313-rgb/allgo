@@ -1,17 +1,38 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { AvatarInitials } from "@/components/shared/avatar-initials";
 import { MatchBadge } from "@/components/dashboard/match-badge";
 import { getDestinationImage } from "@/lib/images";
-import { formatILS } from "@/lib/format";
+import { formatILS, formatDateRange } from "@/lib/format";
 import { useTranslation } from "@/lib/i18n/context";
+import { listMyPlans } from "@/lib/store";
+import type { Plan } from "@/lib/types";
 
 const PREVIEW_NAMES = ["Ido", "Daniel", "Maya", "Ron", "Tom", "Dana", "Noa", "Ben"];
 
 export default function Home() {
   const { t } = useTranslation();
+  // null = still loading; keeps the marketing preview card from flashing
+  // in before we know whether this device already has real trips.
+  const [myPlans, setMyPlans] = useState<Plan[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    listMyPlans()
+      .then((plans) => {
+        if (!cancelled) setMyPlans(plans);
+      })
+      .catch(() => {
+        if (!cancelled) setMyPlans([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col bg-background">
@@ -46,7 +67,7 @@ export default function Home() {
 
         <div className="px-5 pb-12">
           <div className="max-w-md mx-auto">
-            <PreviewCard />
+            {myPlans && myPlans.length > 0 ? <MyTripsList plans={myPlans} /> : <PreviewCard />}
           </div>
         </div>
       </main>
@@ -103,5 +124,42 @@ function PreviewCard() {
         </div>
       </div>
     </Link>
+  );
+}
+
+function MyTripsList({ plans }: { plans: Plan[] }) {
+  const { t, lang } = useTranslation();
+  return (
+    <div className="flex flex-col gap-3">
+      <h2 className="text-sm font-bold text-muted-foreground px-1">{t("landing.myTripsTitle")}</h2>
+      {plans.map((plan) => (
+        <Link
+          key={plan.id}
+          href={`/trip/${plan.shareCode}`}
+          className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] active:scale-[0.99] transition-transform"
+        >
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-foreground truncate">{plan.name}</span>
+              <span
+                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                  plan.status === "decided" ? "bg-emerald-100 text-emerald-800" : "bg-sky text-blue-deep"
+                }`}
+              >
+                {plan.status === "decided" ? t("landing.statusDecided") : t("landing.statusPlanning")}
+              </span>
+            </div>
+            <div className="text-sm text-muted-foreground truncate">
+              {formatDateRange(plan.dateRangeStart, plan.dateRangeEnd, lang)}
+              {plan.destinationIdea ? ` · ${plan.destinationIdea}` : ""}
+            </div>
+          </div>
+          <ChevronRight className="size-5 text-muted-foreground shrink-0 rtl:rotate-180" />
+        </Link>
+      ))}
+      <Link href="/new" className="text-sm font-semibold text-primary text-center py-2">
+        {t("landing.cta")}
+      </Link>
+    </div>
   );
 }

@@ -24,6 +24,9 @@ export const dictionaries = {
       previewDates: "Oct 15 – 18",
       previewCanMakeIt: "8 of 10 can make it",
       previewEstimatedCost: "Estimated cost",
+      myTripsTitle: "Your trips",
+      statusPlanning: "Planning",
+      statusDecided: "Decided",
     },
     create: {
       back: "Back",
@@ -407,6 +410,9 @@ export const dictionaries = {
       previewDates: "⁦15–18⁩ באוקטובר",
       previewCanMakeIt: "8 מתוך 10 יכולים להגיע",
       previewEstimatedCost: "עלות משוערת",
+      myTripsTitle: "הטיולים שלכם",
+      statusPlanning: "בתכנון",
+      statusDecided: "הוחלט",
     },
     create: {
       back: "חזרה",

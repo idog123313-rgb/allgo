@@ -77,6 +77,15 @@ export async function createPlan(input: CreatePlanInput): Promise<Plan> {
   return mapPlan(data);
 }
 
+/** Trips this device's identity organizes or has joined — RLS scopes the
+ * query itself (see is_plan_member / organizer_user_id in the plans
+ * policy), so no explicit filter is needed here. */
+export async function listMyPlans(): Promise<Plan[]> {
+  const { data, error } = await supabase.from("plans").select().order("created_at", { ascending: false });
+  raise(error, "Couldn't load your trips");
+  return (data ?? []).map(mapPlan);
+}
+
 export interface PlanOverview {
   plan: Plan;
   options: TripOption[];
