@@ -36,6 +36,53 @@ export const CATALOG: CatalogEntry[] = [
   { name: "Valencia", destination: "Spain", iataCode: "VLC", imageEmoji: "🏖️", tripTypes: ["city", "beach", "food"], baseFlightPerPerson: 670, baseHotelPerRoomPerNight: 95 },
   { name: "Porto", destination: "Portugal", iataCode: "OPO", imageEmoji: "🍷", tripTypes: ["city", "food", "relaxing"], baseFlightPerPerson: 710, baseHotelPerRoomPerNight: 90 },
   { name: "Paphos", destination: "Cyprus", iataCode: "PFO", imageEmoji: "🏝️", tripTypes: ["beach", "relaxing"], baseFlightPerPerson: 400, baseHotelPerRoomPerNight: 88 },
+
+  // Greek islands
+  { name: "Santorini", destination: "Greece", iataCode: "JTR", imageEmoji: "🌋", tripTypes: ["beach", "relaxing", "nature"], baseFlightPerPerson: 780, baseHotelPerRoomPerNight: 140 },
+  { name: "Mykonos", destination: "Greece", iataCode: "JMK", imageEmoji: "🎉", tripTypes: ["beach", "party", "relaxing"], baseFlightPerPerson: 760, baseHotelPerRoomPerNight: 150 },
+  { name: "Rhodes", destination: "Greece", iataCode: "RHO", imageEmoji: "🏰", tripTypes: ["beach", "relaxing", "nature"], baseFlightPerPerson: 520, baseHotelPerRoomPerNight: 100 },
+  { name: "Chania", destination: "Greece", iataCode: "CHQ", imageEmoji: "🏖️", tripTypes: ["beach", "relaxing", "nature"], baseFlightPerPerson: 540, baseHotelPerRoomPerNight: 95 },
+  { name: "Heraklion", destination: "Greece", iataCode: "HER", imageEmoji: "🍇", tripTypes: ["beach", "relaxing", "food"], baseFlightPerPerson: 560, baseHotelPerRoomPerNight: 90 },
+  { name: "Corfu", destination: "Greece", iataCode: "CFU", imageEmoji: "🌿", tripTypes: ["beach", "relaxing", "nature"], baseFlightPerPerson: 600, baseHotelPerRoomPerNight: 105 },
+  { name: "Kos", destination: "Greece", iataCode: "KGS", imageEmoji: "🏝️", tripTypes: ["beach", "relaxing"], baseFlightPerPerson: 580, baseHotelPerRoomPerNight: 92 },
+
+  // Italy
+  { name: "Naples", destination: "Italy", iataCode: "NAP", imageEmoji: "🌋", tripTypes: ["city", "food", "beach"], baseFlightPerPerson: 600, baseHotelPerRoomPerNight: 100 },
+  { name: "Venice", destination: "Italy", iataCode: "VCE", imageEmoji: "🛶", tripTypes: ["city", "food", "relaxing"], baseFlightPerPerson: 650, baseHotelPerRoomPerNight: 125 },
+  { name: "Bari", destination: "Italy", iataCode: "BRI", imageEmoji: "🫒", tripTypes: ["city", "food", "beach"], baseFlightPerPerson: 570, baseHotelPerRoomPerNight: 88 },
+  { name: "Catania", destination: "Italy", iataCode: "CTA", imageEmoji: "🌋", tripTypes: ["city", "food", "nature"], baseFlightPerPerson: 590, baseHotelPerRoomPerNight: 90 },
+  { name: "Palermo", destination: "Italy", iataCode: "PMO", imageEmoji: "🍊", tripTypes: ["city", "food", "beach"], baseFlightPerPerson: 610, baseHotelPerRoomPerNight: 92 },
+
+  // Spain & Portugal
+  { name: "Madrid", destination: "Spain", iataCode: "MAD", imageEmoji: "🎨", tripTypes: ["city", "food", "party"], baseFlightPerPerson: 720, baseHotelPerRoomPerNight: 110 },
+  { name: "Malaga", destination: "Spain", iataCode: "AGP", imageEmoji: "☀️", tripTypes: ["beach", "relaxing", "food"], baseFlightPerPerson: 700, baseHotelPerRoomPerNight: 100 },
+  { name: "Ibiza", destination: "Spain", iataCode: "IBZ", imageEmoji: "🎧", tripTypes: ["beach", "party"], baseFlightPerPerson: 780, baseHotelPerRoomPerNight: 160 },
+  { name: "Palma de Mallorca", destination: "Spain", iataCode: "PMI", imageEmoji: "⛵", tripTypes: ["beach", "party", "relaxing"], baseFlightPerPerson: 740, baseHotelPerRoomPerNight: 135 },
+  { name: "Seville", destination: "Spain", iataCode: "SVQ", imageEmoji: "💃", tripTypes: ["city", "food"], baseFlightPerPerson: 730, baseHotelPerRoomPerNight: 95 },
+  { name: "Faro", destination: "Portugal", iataCode: "FAO", imageEmoji: "🏖️", tripTypes: ["beach", "relaxing"], baseFlightPerPerson: 750, baseHotelPerRoomPerNight: 105 },
+
+  // Balkans
+  { name: "Zagreb", destination: "Croatia", iataCode: "ZAG", imageEmoji: "🏘️", tripTypes: ["city", "food"], baseFlightPerPerson: 610, baseHotelPerRoomPerNight: 85 },
+  { name: "Dubrovnik", destination: "Croatia", iataCode: "DBV", imageEmoji: "🏯", tripTypes: ["beach", "city", "relaxing"], baseFlightPerPerson: 690, baseHotelPerRoomPerNight: 135 },
+  { name: "Belgrade", destination: "Serbia", iataCode: "BEG", imageEmoji: "🎶", tripTypes: ["city", "party", "food"], baseFlightPerPerson: 500, baseHotelPerRoomPerNight: 70 },
+  { name: "Tirana", destination: "Albania", iataCode: "TIA", imageEmoji: "⛰️", tripTypes: ["city", "adventure"], baseFlightPerPerson: 450, baseHotelPerRoomPerNight: 55 },
+  { name: "Podgorica", destination: "Montenegro", iataCode: "TGD", imageEmoji: "🏔️", tripTypes: ["nature", "adventure"], baseFlightPerPerson: 560, baseHotelPerRoomPerNight: 75 },
+
+  // Baltics & Central Europe
+  { name: "Riga", destination: "Latvia", iataCode: "RIX", imageEmoji: "🏛️", tripTypes: ["city", "party", "food"], baseFlightPerPerson: 640, baseHotelPerRoomPerNight: 78 },
+  { name: "Vilnius", destination: "Lithuania", iataCode: "VNO", imageEmoji: "🌳", tripTypes: ["city", "food"], baseFlightPerPerson: 630, baseHotelPerRoomPerNight: 72 },
+  { name: "Tallinn", destination: "Estonia", iataCode: "TLL", imageEmoji: "🏰", tripTypes: ["city", "food"], baseFlightPerPerson: 660, baseHotelPerRoomPerNight: 82 },
+  { name: "Warsaw", destination: "Poland", iataCode: "WAW", imageEmoji: "🏙️", tripTypes: ["city", "food", "party"], baseFlightPerPerson: 550, baseHotelPerRoomPerNight: 75 },
+  { name: "Bucharest", destination: "Romania", iataCode: "OTP", imageEmoji: "🎪", tripTypes: ["city", "food", "party"], baseFlightPerPerson: 490, baseHotelPerRoomPerNight: 62 },
+  { name: "Ljubljana", destination: "Slovenia", iataCode: "LJU", imageEmoji: "🐉", tripTypes: ["city", "nature", "relaxing"], baseFlightPerPerson: 640, baseHotelPerRoomPerNight: 90 },
+
+  // Caucasus
+  { name: "Yerevan", destination: "Armenia", iataCode: "EVN", imageEmoji: "⛪", tripTypes: ["city", "food", "adventure"], baseFlightPerPerson: 520, baseHotelPerRoomPerNight: 60 },
+  { name: "Batumi", destination: "Georgia", iataCode: "BUS", imageEmoji: "🌊", tripTypes: ["beach", "adventure", "relaxing"], baseFlightPerPerson: 560, baseHotelPerRoomPerNight: 65 },
+
+  // Western Mediterranean
+  { name: "Marseille", destination: "France", iataCode: "MRS", imageEmoji: "⚓", tripTypes: ["city", "beach", "food"], baseFlightPerPerson: 700, baseHotelPerRoomPerNight: 105 },
+  { name: "Nice", destination: "France", iataCode: "NCE", imageEmoji: "🌴", tripTypes: ["city", "beach", "relaxing"], baseFlightPerPerson: 780, baseHotelPerRoomPerNight: 140 },
 ];
 
 /** Free-text departure location -> best-guess IATA code. MVP-simple; a real
