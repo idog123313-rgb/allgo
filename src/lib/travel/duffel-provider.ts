@@ -75,7 +75,14 @@ async function searchCheapestRoundTrip(
   if (!res.ok) return null;
   const json = await res.json();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const offers = (json?.data?.offers ?? []) as any[];
+  const offers = ((json?.data?.offers ?? []) as any[]).filter(
+    // Duffel's sandbox always injects one unrealistically-cheap filler offer
+    // from its own dummy "Duffel Airways" (IATA ZZ) test airline alongside
+    // the real airlines' offers. Sorting by price alone picks that filler
+    // every time instead of a genuine fare — exclude it so results reflect
+    // real airlines' real (sandbox) pricing.
+    (offer) => offer?.owner?.iata_code !== "ZZ"
+  );
   if (offers.length === 0) return null;
   let cheapest = offers[0];
   for (const offer of offers) {
