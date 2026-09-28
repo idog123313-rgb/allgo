@@ -1,7 +1,9 @@
+import { LogoMark } from "./logo-mark";
+
 export function LoadingScreen() {
   return (
     <div className="flex-1 flex items-center justify-center py-24">
-      <div className="size-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      <LogoMark className="size-14 animate-pulse drop-shadow-md" />
     </div>
   );
 }

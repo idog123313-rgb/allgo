@@ -1,0 +1,30 @@
+import { ImageResponse } from "next/og";
+
+export const size = { width: 180, height: 180 };
+export const contentType = "image/png";
+
+// Same artwork as icon.svg, but full-bleed — iOS applies its own corner rounding.
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6b9bff"/>
+      <stop offset="0.55" stop-color="#2f6fed"/>
+      <stop offset="1" stop-color="#7c5cd6"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="392" cy="140" r="36" fill="#ffd166"/>
+  <path d="M128 392 L256 136 L384 392" fill="none" stroke="#fff" stroke-width="62" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M204 336 Q256 276 308 336" fill="none" stroke="#ffd166" stroke-width="28" stroke-linecap="round" stroke-dasharray="1 27"/>
+</svg>`;
+
+export default function AppleIcon() {
+  const src = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+  return new ImageResponse(
+    (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={src} width={size.width} height={size.height} alt="" />
+    ),
+    { ...size }
+  );
+}

@@ -15,6 +15,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { AvatarInitials } from "@/components/shared/avatar-initials";
+import { LogoMark } from "@/components/shared/logo-mark";
 import { MatchBadge } from "@/components/dashboard/match-badge";
 import { getDestinationImage } from "@/lib/images";
 import { formatILS, formatDateRange } from "@/lib/format";
@@ -52,7 +53,8 @@ export default function Home() {
 
   return (
     <div className="flex-1 flex flex-col bg-background">
-      <header className="px-5 py-5 flex items-center max-w-md mx-auto w-full">
+      <header className="px-5 py-5 flex items-center gap-2.5 max-w-md mx-auto w-full">
+        <LogoMark className="size-9 drop-shadow-sm" />
         <span className="text-xl font-extrabold tracking-tight text-foreground">
           {t("landing.wordmark")}
         </span>
